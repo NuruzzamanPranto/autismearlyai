@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/styles.css",
+      "dest": "/public/styles.css"
+    },
+    {
+      "src": "/app.js",
+      "dest": "/public/app.js"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    }
+  ]
+}
