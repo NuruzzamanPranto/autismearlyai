@@ -1,12 +1,15 @@
 const MODEL_VERSION = "ASD-FaceNet v2.1.3 (Research Prototype)";
 const SUBTLE_DISCLAIMER =
   "This prototype is designed for research and early screening support only. It is not intended for diagnostic use.";
+const RESEARCH_NOTE =
+  "This research initiative aims to support early autism screening in the United States through AI-assisted decision support tools designed for behavioral health professionals.";
 
 const app = document.getElementById("app");
 
 let state = {
   authenticated: false,
-  page: "login", // login | screening | results
+  page: "login", // login | screening | results | authors | autism
+  previousPage: "login",
   uploadedImageDataUrl: null,
   capturedImageDataUrl: null,
   results: null,
@@ -17,18 +20,76 @@ function subtleDisclaimerFooter() {
   return `
     <div class="footer-wrap">
       <div class="tiny">${SUBTLE_DISCLAIMER}</div>
+      <div class="tiny" style="margin-top:6px;">${RESEARCH_NOTE}</div>
     </div>
   `;
 }
 
 function escapeHtml(text) {
   const div = document.createElement("div");
-  div.innerText = text;
+  div.innerText = text ?? "";
   return div.innerHTML;
 }
 
+function openInfoPage(targetPage) {
+  state.previousPage = state.page;
+  state.page = targetPage;
+  render();
+}
+
+function goBackFromInfoPage() {
+  state.page = state.previousPage || (state.authenticated ? "screening" : "login");
+  render();
+}
+
+function renderTopActions(showSignOut = false) {
+  return `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="actions" style="justify-content:space-between; align-items:center;">
+        <div class="muted"><b>Research information</b></div>
+        <div class="actions">
+          <button id="authorsBtn">Authors</button>
+          <button id="autismBtn">Autism in the U.S.</button>
+          ${showSignOut ? `<button id="topSignOutBtn">Sign out</button>` : ``}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function bindSharedActions(showSignOut = false) {
+  const authorsBtn = document.getElementById("authorsBtn");
+  const autismBtn = document.getElementById("autismBtn");
+  const topSignOutBtn = document.getElementById("topSignOutBtn");
+
+  if (authorsBtn) {
+    authorsBtn.addEventListener("click", () => openInfoPage("authors"));
+  }
+
+  if (autismBtn) {
+    autismBtn.addEventListener("click", () => openInfoPage("autism"));
+  }
+
+  if (showSignOut && topSignOutBtn) {
+    topSignOutBtn.addEventListener("click", () => {
+      stopCamera();
+      state.authenticated = false;
+      state.results = null;
+      state.uploadedImageDataUrl = null;
+      state.capturedImageDataUrl = null;
+      state.page = "login";
+      state.previousPage = "login";
+      render();
+    });
+  }
+}
+
 function render() {
-  if (!state.authenticated || state.page === "login") {
+  if (state.page === "authors") {
+    renderAuthors();
+  } else if (state.page === "autism") {
+    renderAutismInfo();
+  } else if (!state.authenticated || state.page === "login") {
     renderLogin();
   } else if (state.page === "screening") {
     renderScreening();
@@ -41,6 +102,8 @@ function renderLogin() {
   stopCamera();
 
   app.innerHTML = `
+    ${renderTopActions(false)}
+
     <div class="main-header">🧠 ASD Screening Prototype</div>
     <div class="subheader">Secure access for clinical research workflows</div>
 
@@ -91,6 +154,8 @@ function renderLogin() {
     ${subtleDisclaimerFooter()}
   `;
 
+  bindSharedActions(false);
+
   document.getElementById("loginBtn").addEventListener("click", () => {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
@@ -99,6 +164,7 @@ function renderLogin() {
     if (username === "admin" && password === "research2026") {
       state.authenticated = true;
       state.page = "screening";
+      state.previousPage = "screening";
       render();
     } else {
       message.innerHTML = `<span style="color:#b91c1c;">Invalid credentials.</span>`;
@@ -106,24 +172,114 @@ function renderLogin() {
   });
 }
 
+function renderAuthors() {
+  app.innerHTML = `
+    ${renderTopActions(state.authenticated)}
+
+    <div class="main-header">👤 Project Lead</div>
+    <div class="subheader">Research profile and affiliation areas</div>
+
+    <div class="card" style="max-width:900px;">
+      <div class="card-title">Md Nuruzzaman Pranto</div>
+
+      <div class="muted" style="font-size:1rem; margin-bottom:14px;">
+        Researcher in AI-Driven Health Information Systems
+      </div>
+
+      <div class="soft-line"></div>
+
+      <div class="muted" style="margin-bottom:12px;">
+        <b>Focus:</b> Early Autism Risk Screening using Explainable AI
+      </div>
+
+      <div class="card" style="background:rgba(99,102,241,0.05);">
+        <div class="card-title">Affiliation areas</div>
+        <div class="muted">• Artificial Intelligence</div>
+        <div class="muted">• Health Information Systems</div>
+        <div class="muted">• Clinical Decision Support</div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button id="backFromAuthorsBtn">⬅ Back</button>
+      </div>
+    </div>
+
+    ${subtleDisclaimerFooter()}
+  `;
+
+  bindSharedActions(state.authenticated);
+  document.getElementById("backFromAuthorsBtn").addEventListener("click", goBackFromInfoPage);
+}
+
+function renderAutismInfo() {
+  app.innerHTML = `
+    ${renderTopActions(state.authenticated)}
+
+    <div class="main-header">📘 Autism in the United States</div>
+    <div class="subheader">Context for the research prototype</div>
+
+    <div class="card" style="max-width:900px;">
+      <div class="card-title">Background</div>
+
+      <div class="muted" style="font-size:1rem; line-height:1.7;">
+        According to the Centers for Disease Control and Prevention, approximately
+        <b>1 in 36 children in the United States</b> is diagnosed with Autism Spectrum Disorder (ASD).
+      </div>
+
+      <div class="soft-line"></div>
+
+      <div class="muted" style="font-size:1rem; line-height:1.7;">
+        Early identification remains challenging due to limitations in accessible screening tools
+        and clinical resources.
+      </div>
+
+      <div class="soft-line"></div>
+
+      <div class="muted" style="font-size:1rem; line-height:1.7;">
+        This research project explores the development of an Explainable AI–enabled health
+        information system designed to support early autism screening and decision-making
+        in behavioral health services.
+      </div>
+
+      <div style="margin-top:16px;">
+        <button id="backFromAutismBtn">⬅ Back</button>
+      </div>
+    </div>
+
+    ${subtleDisclaimerFooter()}
+  `;
+
+  bindSharedActions(state.authenticated);
+  document.getElementById("backFromAutismBtn").addEventListener("click", goBackFromInfoPage);
+}
+
 function renderScreening() {
   app.innerHTML = `
+    ${renderTopActions(true)}
+
     <div class="main-header">👤 Patient Screening</div>
-    <div class="subheader">Step A: Provide a front-facing facial image (upload or webcam capture)</div>
+    <div class="subheader">Step A: Provide a front-facing facial image through upload or webcam capture</div>
 
     <div class="grid-2-equal">
-      <div class="card">
+      <div class="card" style="min-height:420px;">
         <div class="card-title">Upload facial image</div>
+        <div class="muted" style="margin-bottom:10px;">
+          Select a PNG, JPG, or JPEG image for pre-screening analysis.
+        </div>
         <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" />
         <div id="uploadPreviewWrap" style="margin-top:12px;"></div>
       </div>
 
-      <div class="card">
+      <div class="card" style="min-height:420px;">
         <div class="card-title">Webcam capture</div>
+        <div class="muted" style="margin-bottom:10px;">
+          Capture a front-facing image directly from your device camera.
+        </div>
+
         <video id="video" autoplay playsinline class="hidden"></video>
         <canvas id="canvas"></canvas>
 
-        <div class="actions" style="margin-bottom:12px;">
+        <div class="actions" style="margin:12px 0;">
           <button id="startCameraBtn">Start Camera</button>
           <button id="captureBtn">Take a Photo</button>
           <button id="stopCameraBtn">Stop Camera</button>
@@ -143,6 +299,7 @@ function renderScreening() {
     ${subtleDisclaimerFooter()}
   `;
 
+  bindSharedActions(true);
   bindScreeningEvents();
   updateScreeningPreviews();
   updateAnalyzeButton();
@@ -294,6 +451,7 @@ async function runAnalysis() {
     const data = await response.json();
     state.results = data;
     state.page = "results";
+    state.previousPage = "screening";
     render();
   } catch (error) {
     analyzeStatus.innerHTML = `<span style="color:#b91c1c;">${escapeHtml(error.message)}</span>`;
@@ -311,6 +469,8 @@ function renderResults() {
   const r = state.results;
 
   app.innerHTML = `
+    ${renderTopActions(true)}
+
     <div class="main-header">📊 AI Analysis Results</div>
     <div class="subheader">Decision-support summary • Model: ${escapeHtml(r.model_version || MODEL_VERSION)}</div>
 
@@ -396,21 +556,26 @@ function renderResults() {
     ${subtleDisclaimerFooter()}
   `;
 
+  bindSharedActions(true);
+
   document.getElementById("downloadPdfBtn").addEventListener("click", downloadPdf);
   document.getElementById("newScreeningBtn").addEventListener("click", () => {
     state.results = null;
     state.uploadedImageDataUrl = null;
     state.capturedImageDataUrl = null;
     state.page = "screening";
+    state.previousPage = "screening";
     render();
   });
 
   document.getElementById("signOutBtn").addEventListener("click", () => {
+    stopCamera();
     state.authenticated = false;
     state.results = null;
     state.uploadedImageDataUrl = null;
     state.capturedImageDataUrl = null;
     state.page = "login";
+    state.previousPage = "login";
     render();
   });
 }
