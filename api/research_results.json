@@ -1,0 +1,60 @@
+{
+  "dataset": "Toddler Autism dataset July 2018 (Q-CHAT-10), F. Thabtah, 2018",
+  "n_rows": 1054,
+  "n_after_dedup": 975,
+  "positive_rate_after_dedup": 0.709,
+  "label_equals_score_gt_3": 1.0,
+  "score_column_equals_item_sum": 1.0,
+  "evaluation": "5-fold stratified cross-validation repeated 5 times, after removing duplicate rows",
+  "results": [
+    {
+      "model": "Logistic regression - 10 questionnaire items",
+      "features": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10"
+      ],
+      "auc_mean": 1.0,
+      "auc_sd": 0.0,
+      "balanced_accuracy_mean": 1.0,
+      "balanced_accuracy_sd": 0.0
+    },
+    {
+      "model": "Logistic regression - demographics only",
+      "features": [
+        "Age_Mons",
+        "Sex",
+        "Ethnicity",
+        "Jaundice",
+        "Family_mem_with_ASD",
+        "Who completed the test"
+      ],
+      "auc_mean": 0.592,
+      "auc_sd": 0.046,
+      "balanced_accuracy_mean": 0.512,
+      "balanced_accuracy_sd": 0.016
+    },
+    {
+      "model": "Gradient boosting - demographics only",
+      "features": [
+        "Age_Mons",
+        "Sex",
+        "Ethnicity",
+        "Jaundice",
+        "Family_mem_with_ASD",
+        "Who completed the test"
+      ],
+      "auc_mean": 0.599,
+      "auc_sd": 0.049,
+      "balanced_accuracy_mean": 0.526,
+      "balanced_accuracy_sd": 0.018
+    }
+  ]
+}
