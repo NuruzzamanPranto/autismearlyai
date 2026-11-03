@@ -1,8 +1,8 @@
-const MODEL_VERSION = "ASD-FaceNet v2.1.3 (Research Prototype)";
+const MODEL_VERSION = "None (interface prototype — no trained model connected)";
 const SUBTLE_DISCLAIMER =
-  "This prototype is designed for research and early screening support only. It is not intended for diagnostic use.";
+  "This website is an interface prototype only. No trained AI model is connected and it does not analyse images or produce screening results. It is not a medical device.";
 const RESEARCH_NOTE =
-  "This research initiative aims to support early autism screening in the United States through AI-assisted decision support tools designed for behavioral health professionals.";
+  "The modelling research behind this project (evaluation of autism-screening machine learning) is reported in the author's papers, not run on this site.";
 
 const app = document.getElementById("app");
 
@@ -44,6 +44,15 @@ function goBackFromInfoPage() {
 
 function renderTopActions(showSignOut = false) {
   return `
+    <div class="card" style="margin-bottom:16px; border:2px solid #b45309; background:#fffbeb;">
+      <div class="card-title" style="color:#92400e;">Notice: interface prototype — no AI model is connected</div>
+      <div class="muted" style="color:#78350f;">
+        This site demonstrates a planned user interface and report layout only. It does not analyse images and does not
+        produce autism risk scores. Earlier versions of this demo displayed <b>simulated (randomly generated)</b> scores and
+        illustrative heatmaps that did not come from any model; those outputs had no clinical or scientific meaning.
+        If you have concerns about a child's development, please speak with a pediatrician or qualified clinician.
+      </div>
+    </div>
     <div class="card" style="margin-bottom:16px;">
       <div class="actions" style="justify-content:space-between; align-items:center;">
         <div class="muted"><b>Research information</b></div>
@@ -105,19 +114,16 @@ function renderLogin() {
     ${renderTopActions(false)}
 
     <div class="main-header">🧠 ASD Screening Prototype</div>
-    <div class="subheader">Secure access for clinical research workflows</div>
+    <div class="subheader">Interface preview — no model connected</div>
 
     <div class="grid-2">
       <div>
         <div class="card banner">
-          <div class="card-title">Research platform access</div>
+          <div class="card-title">Interface preview</div>
           <div class="muted">
-            Use authorised credentials to access the prototype.
+            This preview shows the planned screens of a research interface. Image analysis is disabled because no
+            trained, validated model is connected.
           </div>
-          <div class="soft-line"></div>
-          <div class="muted"><b>Demo credentials</b></div>
-          <div class="muted">Username: <code>admin</code></div>
-          <div class="muted">Password: <code>research2026</code></div>
         </div>
 
         <div class="card" style="margin-top:14px;">
@@ -136,15 +142,9 @@ function renderLogin() {
 
       <div>
         <div class="card">
-          <div class="card-title">Sign in</div>
-
-          <div class="form-row">
-            <input id="username" type="text" placeholder="admin" />
-          </div>
-          <div class="form-row">
-            <input id="password" type="password" placeholder="research2026" />
-          </div>
-          <button id="loginBtn" class="primary" style="width:100%;">Access Prototype</button>
+          <div class="card-title">View the interface</div>
+          <div class="muted" style="margin-bottom:12px;">Please do not upload photos of real children.</div>
+          <button id="loginBtn" class="primary" style="width:100%;">Open Interface Preview</button>
 
           <div id="loginMessage" class="note"></div>
         </div>
@@ -157,18 +157,10 @@ function renderLogin() {
   bindSharedActions(false);
 
   document.getElementById("loginBtn").addEventListener("click", () => {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const message = document.getElementById("loginMessage");
-
-    if (username === "admin" && password === "research2026") {
-      state.authenticated = true;
-      state.page = "screening";
-      state.previousPage = "screening";
-      render();
-    } else {
-      message.innerHTML = `<span style="color:#b91c1c;">Invalid credentials.</span>`;
-    }
+    state.authenticated = true;
+    state.page = "screening";
+    state.previousPage = "screening";
+    render();
   });
 }
 
@@ -223,7 +215,7 @@ function renderAutismInfo() {
 
       <div class="muted" style="font-size:1rem; line-height:1.7;">
         According to the Centers for Disease Control and Prevention, approximately
-        <b>1 in 36 children in the United States</b> is diagnosed with Autism Spectrum Disorder (ASD).
+        <b>1 in 31 eight-year-old children in the United States</b> had been identified with Autism Spectrum Disorder (ASD) in 2022 (CDC ADDM Network, 2025 report).
       </div>
 
       <div class="soft-line"></div>
@@ -236,9 +228,9 @@ function renderAutismInfo() {
       <div class="soft-line"></div>
 
       <div class="muted" style="font-size:1rem; line-height:1.7;">
-        This research project explores the development of an Explainable AI–enabled health
-        information system designed to support early autism screening and decision-making
-        in behavioral health services.
+        The underlying research examines how autism-screening machine-learning models should be evaluated
+        (data-leakage control, multiple datasets, subgroup checks, documented limitations). This website
+        itself contains no model.
       </div>
 
       <div style="margin-top:16px;">
@@ -257,8 +249,8 @@ function renderScreening() {
   app.innerHTML = `
     ${renderTopActions(true)}
 
-    <div class="main-header">👤 Patient Screening</div>
-    <div class="subheader">Step A: Provide a front-facing facial image through upload or webcam capture</div>
+    <div class="main-header">👤 Screening Interface (preview only)</div>
+    <div class="subheader">Layout preview — analysis is disabled; no model is connected. Please do not upload photos of real children.</div>
 
     <div class="grid-2-equal">
       <div class="card" style="min-height:420px;">
@@ -290,7 +282,7 @@ function renderScreening() {
         <div class="soft-line"></div>
 
         <button id="analyzeBtn" class="primary" style="width:100%;" disabled>
-          🧠 Run Pre-Screening Analysis
+          Analysis disabled — no model connected
         </button>
         <div id="analyzeStatus" class="loader"></div>
       </div>
@@ -363,7 +355,7 @@ function updateScreeningPreviews() {
 function updateAnalyzeButton() {
   const analyzeBtn = document.getElementById("analyzeBtn");
   if (!analyzeBtn) return;
-  analyzeBtn.disabled = !getSelectedImage();
+  analyzeBtn.disabled = true; // no model connected
 }
 
 function getSelectedImage() {
@@ -425,6 +417,10 @@ function captureFromCamera() {
 }
 
 async function runAnalysis() {
+  const st = document.getElementById("analyzeStatus");
+  if (st) st.textContent = "Analysis is disabled: no trained model is connected to this interface prototype.";
+  return;
+
   const selectedImage = getSelectedImage();
   if (!selectedImage) return;
 
@@ -432,7 +428,7 @@ async function runAnalysis() {
   const analyzeStatus = document.getElementById("analyzeStatus");
 
   analyzeBtn.disabled = true;
-  analyzeStatus.textContent = "Analysing face regions and generating explainability overlay...";
+  analyzeStatus.textContent = "Analysis is disabled in this interface prototype.";
 
   try {
     const response = await fetch("/api/analyze", {
@@ -518,7 +514,7 @@ function renderResults() {
       </div>
 
       <div class="card">
-        <div class="card-title">3) Explainability (Grad-CAM heatmap overlay)</div>
+        <div class="card-title">3) Explanation overlay (placeholder)</div>
         <img class="preview" src="${r.heatmap_image}" alt="Heatmap image" />
         <div class="tiny" style="margin-top:10px;">
           Overlay highlights: Eyes (higher) • Nose (medium) • Mouth (lower)
