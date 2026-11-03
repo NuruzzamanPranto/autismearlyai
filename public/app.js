@@ -1,8 +1,8 @@
-const MODEL_VERSION = "ASD-FaceNet v2.1.3 (Research Prototype)";
+const MODEL_VERSION = "Interface demonstration — no trained model connected";
 const SUBTLE_DISCLAIMER =
-  "This prototype is designed for research and early screening support only. It is not intended for diagnostic use.";
+  "INTERFACE PROTOTYPE ONLY. No trained prediction model is connected. No ASD risk score, diagnosis, or validated screening result is provided.";
 const RESEARCH_NOTE =
-  "This research initiative aims to support early autism screening in the United States through AI-assisted decision support tools designed for behavioral health professionals.";
+  "Future research aims to evaluate machine-learning methods for autism-related screening. The current application demonstrates interface and reporting workflows only.";
 
 const app = document.getElementById("app");
 
@@ -105,14 +105,14 @@ function renderLogin() {
     ${renderTopActions(false)}
 
     <div class="main-header">🧠 ASD Screening Prototype</div>
-    <div class="subheader">Secure access for clinical research workflows</div>
+    <div class="subheader">Interface prototype only — no trained prediction model connected</div>
 
     <div class="grid-2">
       <div>
         <div class="card banner">
           <div class="card-title">Research platform access</div>
           <div class="muted">
-            Use authorised credentials to access the prototype.
+            Demo credentials only. This is not a secure authentication system. Do not enter personal or patient information.
           </div>
           <div class="soft-line"></div>
           <div class="muted"><b>Demo credentials</b></div>
@@ -121,14 +121,14 @@ function renderLogin() {
         </div>
 
         <div class="card" style="margin-top:14px;">
-          <div class="card-title">For clinical research use only</div>
+          <div class="card-title">Software interface demonstration only</div>
           <div class="muted">
-            This system is a prototype. It is not a diagnostic device and must not be used as a substitute for
+            No trained model is connected. This system does not estimate autism risk, screen patients, or diagnose conditions. It must not be used as a substitute for
             clinical judgement or validated assessment tools.
           </div>
           <div class="soft-line"></div>
           <div class="muted">
-            <b>HIPAA-style notice (prototype):</b> Avoid uploading identifiable data unless your
+            <b>Privacy notice:</b> Do not upload identifiable or sensitive images. This prototype is not verified as HIPAA compliant. Avoid uploading any personal data even if your
             research protocol permits it. Use de-identified images when possible.
           </div>
         </div>
@@ -257,14 +257,14 @@ function renderScreening() {
   app.innerHTML = `
     ${renderTopActions(true)}
 
-    <div class="main-header">👤 Patient Screening</div>
-    <div class="subheader">Step A: Provide a front-facing facial image through upload or webcam capture</div>
+    <div class="main-header">👤 Image Workflow Demonstration</div>
+    <div class="subheader">Optional local image preview; no clinical screening or model inference</div>
 
     <div class="grid-2-equal">
       <div class="card" style="min-height:420px;">
         <div class="card-title">Upload facial image</div>
         <div class="muted" style="margin-bottom:10px;">
-          Select a PNG, JPG, or JPEG image for pre-screening analysis.
+          Select a non-sensitive test image to preview the upload interface.
         </div>
         <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" />
         <div id="uploadPreviewWrap" style="margin-top:12px;"></div>
@@ -290,7 +290,7 @@ function renderScreening() {
         <div class="soft-line"></div>
 
         <button id="analyzeBtn" class="primary" style="width:100%;" disabled>
-          🧠 Run Pre-Screening Analysis
+          Analysis unavailable — no model connected
         </button>
         <div id="analyzeStatus" class="loader"></div>
       </div>
@@ -327,7 +327,7 @@ function bindScreeningEvents() {
     updateScreeningPreviews();
   });
 
-  analyzeBtn.addEventListener("click", runAnalysis);
+  // Model analysis is intentionally disabled until a validated model is implemented.
 }
 
 function updateScreeningPreviews() {
@@ -363,7 +363,7 @@ function updateScreeningPreviews() {
 function updateAnalyzeButton() {
   const analyzeBtn = document.getElementById("analyzeBtn");
   if (!analyzeBtn) return;
-  analyzeBtn.disabled = !getSelectedImage();
+  analyzeBtn.disabled = true;
 }
 
 function getSelectedImage() {
@@ -425,8 +425,7 @@ function captureFromCamera() {
 }
 
 async function runAnalysis() {
-  const selectedImage = getSelectedImage();
-  if (!selectedImage) return;
+  throw new Error("Analysis disabled: no trained model is connected.");
 
   const analyzeBtn = document.getElementById("analyzeBtn");
   const analyzeStatus = document.getElementById("analyzeStatus");
@@ -471,7 +470,7 @@ function renderResults() {
   app.innerHTML = `
     ${renderTopActions(true)}
 
-    <div class="main-header">📊 AI Analysis Results</div>
+    <div class="main-header">Historical demo output — NOT a prediction</div>
     <div class="subheader">Decision-support summary • Model: ${escapeHtml(r.model_version || MODEL_VERSION)}</div>
 
     <div class="grid-3">

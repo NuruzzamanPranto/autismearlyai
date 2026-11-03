@@ -1,76 +1,32 @@
-#  AutismEarlyAI – Explainable AI for Early Autism Screening
-🔗 Live System: https://autismearlyai.org/
+# AutismEarlyAI — Research Interface Prototype
 
----
+**Current status (November 2026): Interface prototype only. No trained autism prediction model is connected.**
 
-##  Project Overview
+AutismEarlyAI demonstrates software interfaces and workflows for a proposed autism-related machine-learning research program. **It is not an autism screening tool, diagnostic device, validated risk estimator, or clinical decision-support system.** Do not use it to make health decisions or process real patient information.
 
-AutismEarlyAI is an AI-enabled clinical decision-support system designed to assist early screening of Autism Spectrum Disorder (ASD) using facial image analysis and explainable machine learning techniques.
+## What is implemented
 
-This system supports structured and data-driven decision-making in healthcare and behavioral health settings by providing interpretable outputs that can assist professionals in early identification processes.
+- Web interface for image selection and camera preview
+- FastAPI backend and image-processing demonstration code
+- PDF reporting workflow
+- Prototype visual overlays for demonstrating user-interface concepts
 
----
+## Important technical limitations
 
-##  Key Features
+- The backend's existing prediction function generates **random demonstration numbers**, not model inference. Such numbers are **not probabilities of autism**.
+- Existing visual overlays use programmatically selected image regions and randomness; they are **not Grad-CAM explanations of a trained model**.
+- No trained model weights, verified evaluation dataset, validated performance metrics, or clinical deployment are demonstrated in this repository.
+- The demonstration login is not production authentication; do not upload sensitive or identifiable images.
+- Legacy backend endpoints may still produce simulated output. They must not be exposed or used for health assessment. Frontend analysis has been disabled pending backend remediation.
 
-- AI-based autism risk prediction from facial images  
-- Explainable AI (XAI) using visual heatmaps (e.g., Grad-CAM)  
-- Confidence score generation  
-- Structured and downloadable screening reports  
-- Web-based interface for accessibility and usability  
+## Research direction (planned, not implemented here)
 
----
+The proposed research aims to study leakage-controlled evaluation, robustness, calibration, subgroup fairness, and transparent reporting of machine-learning methods relevant to early autism screening and referral research. Such research would require appropriate datasets, permissions, documented experiments, independent validation, and clinical oversight before any practical use could be considered.
 
-##  System Workflow
+## Historical record and corrections
 
-1. User uploads a facial image  
-2. The AI model processes the image  
-3. The system generates a risk prediction score  
-4. Explainability module produces visual interpretation (heatmap)  
-5. A structured report is generated for review  
+This README corrects earlier descriptions that implied a functioning or deployed AI screening model. Historical commits remain available in Git history; this clarification does not retroactively change what was implemented at earlier dates.
 
----
+Project website: https://www.autismearlyai.org/
 
-##  Real-World Application
-
-This system is designed as a **clinical decision-support tool**, helping clinicians, behavioral therapists, and caregivers in early-stage screening.
-
-It is particularly relevant in environments where access to early diagnostic resources is limited, supporting improved efficiency and structured assessment workflows.
-
----
-
-## 🇺🇸 Relevance to U.S. Healthcare
-
-Early identification of Autism Spectrum Disorder remains a significant challenge in the United States. Delays in detection can impact timely intervention and long-term outcomes.
-
-This system contributes to improving accessibility, consistency, and efficiency in early screening processes, aligning with national priorities in healthcare innovation and early intervention.
-
----
-
-## ⚠️ Disclaimer
-
-This system is intended for research and decision-support purposes only.  
-It does not provide medical diagnosis and should not replace professional clinical evaluation.
-
----
-
-##  Technical Stack
-
-- Python  
-- TensorFlow / PyTorch  
-- OpenCV  
-- Web-based deployment (Vercel)  
-
----
-
-## 👨‍💻 Developer
-
-Developed independently by **Md Nuruzzaman Pranto** as part of ongoing work in AI-enabled health information systems and explainable artificial intelligence for healthcare.
-
----
-
-##  Impact Statement
-
-This project reflects the translation of advanced AI research into a practical, deployable healthcare system. It demonstrates the ability to develop scalable, interpretable, and real-world AI solutions that support structured clinical decision-making.
-
----
+**No clinical or diagnostic use.**
