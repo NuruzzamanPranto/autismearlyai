@@ -1,64 +1,123 @@
 """
-Leakage check on the public "Toddler Autism dataset July 2018" (Q-CHAT-10, n=1,054).
+Leakage audit of the public "Toddler Autism dataset July 2018" (Q-CHAT-10, n = 1,054).
 
-Usage:  python evaluate.py "Toddler Autism dataset July 2018.csv"
-Writes: ../api/research_results.json
+Usage
+    pip install -r research/requirements.txt
+    python research/evaluate.py "Toddler Autism dataset July 2018.csv"
+
+Writes api/research_results.json and refreshes the embedded copy in api/index.py.
 
 The dataset is not redistributed here. It was published by F. Thabtah (2018),
-collected with the ASDTests app; the label "Class/ASD Traits" is assigned when
-the Q-CHAT-10 score is greater than 3.
+collected with the ASDTests app; its label "Class/ASD Traits" is assigned when the
+Q-CHAT-10 total is greater than 3 - which is why it leaks.
+
+What it computes (all real model runs; nothing is simulated)
+1. Label audit: how often the label equals "item total > 3".
+2. Leakage Explorer: logistic regression on every combination of three feature
+   groups (10 answers, the dataset's precomputed total, demographics), evaluated
+   with 5-fold stratified cross-validation repeated 5 times after removing
+   duplicate rows. Demographics-only is also run with gradient boosting.
+3. What the AI learned: a logistic regression fitted on the 10 answers; its
+   weights, intercept and the decision threshold expressed in questionnaire points.
 """
-import json, sys
-import numpy as np, pandas as pd
-from sklearn.model_selection import RepeatedStratifiedKFold, cross_validate
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.preprocessing import OneHotEncoder
+import itertools
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import RepeatedStratifiedKFold, cross_validate
 from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import OneHotEncoder
 
-d = pd.read_csv(sys.argv[1])
-items = [f"A{i}" for i in range(1, 11)]
-y_all = (d["Class/ASD Traits"].str.strip() == "Yes").astype(int)
-score = d[items].sum(axis=1)
+ROOT = Path(__file__).resolve().parent.parent
+csv_path = sys.argv[1]
 
-rule_agreement = float(((score > 3).astype(int) == y_all).mean())
-score_matches_column = float((score == d["Qchat-10-Score"]).mean())
+d = pd.read_csv(csv_path)
+ITEMS = [f"A{i}" for i in range(1, 11)]
+ITEM_NAMES = ["Responds to name", "Eye contact", "Points to request", "Points to share interest",
+              "Pretend play", "Follows gaze", "Comforts others", "First words",
+              "Simple gestures", "Stares at nothing"]
+DEMO_CAT = ["Sex", "Ethnicity", "Jaundice", "Family_mem_with_ASD", "Who completed the test"]
+DEMO = ["Age_Mons"] + DEMO_CAT
+TOTAL = ["Qchat-10-Score"]
 
-demo_cat = ["Sex", "Ethnicity", "Jaundice", "Family_mem_with_ASD", "Who completed the test"]
 d["Ethnicity"] = d["Ethnicity"].str.strip().str.lower()
-X = d[items + ["Age_Mons"] + demo_cat].copy()
-keep = ~X.assign(_y=y_all).duplicated()
-X, y = X[keep], y_all[keep]
+y_all = (d["Class/ASD Traits"].str.strip() == "Yes").astype(int)
+item_sum = d[ITEMS].sum(axis=1)
+
+audit = {
+    "n_rows": int(len(d)),
+    "label_equals_total_gt_3": float(((item_sum > 3).astype(int) == y_all).mean()),
+    "total_column_equals_item_sum": float((item_sum == d["Qchat-10-Score"]).mean()),
+}
+
+X_all = d[ITEMS + TOTAL + DEMO].copy()
+keep = ~X_all.assign(_y=y_all).duplicated()
+X, y = X_all[keep], y_all[keep]
+audit["n_after_dedup"] = int(len(X))
+audit["positive_rate_after_dedup"] = round(float(y.mean()), 3)
 
 cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=0)
 
-def run(name, cols, cat, model):
+
+def evaluate(cols, model):
+    cat = [c for c in cols if c in DEMO_CAT]
     pre = ColumnTransformer(
         [("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), cat)],
         remainder="passthrough")
     r = cross_validate(make_pipeline(pre, model), X[cols], y, cv=cv,
                        scoring=["roc_auc", "balanced_accuracy"])
-    auc, bal = r["test_roc_auc"], r["test_balanced_accuracy"]
-    return {"model": name, "features": cols,
-            "auc_mean": round(float(auc.mean()), 3), "auc_sd": round(float(auc.std()), 3),
-            "balanced_accuracy_mean": round(float(bal.mean()), 3),
-            "balanced_accuracy_sd": round(float(bal.std()), 3)}
+    a, b = r["test_roc_auc"], r["test_balanced_accuracy"]
+    return {"auc_mean": round(float(a.mean()), 3), "auc_sd": round(float(a.std()), 3),
+            "balanced_accuracy_mean": round(float(b.mean()), 3),
+            "balanced_accuracy_sd": round(float(b.std()), 3)}
 
-results = [
-    run("Logistic regression - 10 questionnaire items", items, [], LogisticRegression(max_iter=2000)),
-    run("Logistic regression - demographics only", ["Age_Mons"] + demo_cat, demo_cat, LogisticRegression(max_iter=2000)),
-    run("Gradient boosting - demographics only", ["Age_Mons"] + demo_cat, demo_cat, HistGradientBoostingClassifier(max_depth=3, random_state=0)),
-]
+
+GROUPS = {"answers": ITEMS, "total": TOTAL, "demographics": DEMO}
+explorer = []
+for k in range(1, 4):
+    for combo in itertools.combinations(GROUPS, k):
+        cols = [c for g in combo for c in GROUPS[g]]
+        res = evaluate(cols, LogisticRegression(max_iter=5000))
+        explorer.append({"groups": list(combo), "model": "Logistic regression", **res})
+explorer.append({"groups": ["demographics"], "model": "Gradient boosting",
+                 **evaluate(DEMO, HistGradientBoostingClassifier(max_depth=3, random_state=0))})
+
+lr = LogisticRegression(max_iter=5000).fit(X[ITEMS], y)
+w = lr.coef_[0]
+learned = {
+    "fitted_on_rows": int(len(X)),
+    "items": [{"item": i + 1, "name": n, "weight": round(float(v), 3)} for i, (n, v) in enumerate(zip(ITEM_NAMES, w))],
+    "intercept": round(float(lr.intercept_[0]), 3),
+    "mean_weight": round(float(w.mean()), 3),
+    "weight_variation_pct": round(float(w.std() / w.mean() * 100), 1),
+    "threshold_in_points": round(float(-lr.intercept_[0] / w.mean()), 2),
+}
 
 out = {
     "dataset": "Toddler Autism dataset July 2018 (Q-CHAT-10), F. Thabtah, 2018",
-    "n_rows": int(len(d)), "n_after_dedup": int(len(X)),
-    "positive_rate_after_dedup": round(float(y.mean()), 3),
-    "label_equals_score_gt_3": rule_agreement,
-    "score_column_equals_item_sum": score_matches_column,
     "evaluation": "5-fold stratified cross-validation repeated 5 times, after removing duplicate rows",
-    "results": results,
+    "audit": audit,
+    "explorer": explorer,
+    "learned_model": learned,
 }
-json.dump(out, open(sys.argv[2] if len(sys.argv) > 2 else "../api/research_results.json", "w"), indent=2)
+
+(ROOT / "api" / "research_results.json").write_text(json.dumps(out, indent=2))
+
+# Refresh the embedded copy used when the JSON file is not bundled by the host.
+idx = ROOT / "api" / "index.py"
+src = idx.read_text()
+block = ("# --- BEGIN RESEARCH DATA (generated by research/evaluate.py) ---\n"
+         f"RESEARCH_FALLBACK = json.loads(r'''{json.dumps(out)}''')\n"
+         "# --- END RESEARCH DATA ---")
+src, n = re.subn(r"# --- BEGIN RESEARCH DATA.*?# --- END RESEARCH DATA ---", lambda m: block, src, flags=re.S)
+if n != 1:
+    raise SystemExit("Could not find research data markers in api/index.py")
+idx.write_text(src)
 print(json.dumps(out, indent=2))
