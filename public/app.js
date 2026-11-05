@@ -295,10 +295,13 @@ function renderPubs() {
       <h2>Autism screening research</h2>
       <ul class="pubs">
         <li><b>Demographic Features Fail to Provide Clinically Viable Autism Screening: A Leakage-Controlled Multi-Dataset Re-evaluation of Machine Learning.</b>
-          <i>IEEE Access</i>, accepted 2026. Md Nuruzzaman Pranto (first and corresponding author).</li>
+          <i>IEEE Access</i>, accepted October 31, 2026. Md Nuruzzaman Pranto (first and corresponding author).
+          Data and protocol: <a href="https://doi.org/10.5281/zenodo.22841700" target="_blank" rel="noopener">doi.org/10.5281/zenodo.22841700</a>.</li>
         <li><b>Early Prediction of Autism Spectrum Disorder Using Demographic Features: A Leakage-Controlled Deep Learning Approach.</b>
-          ISITDI 2026, Padang, Indonesia (November 9&ndash;10, 2026), accepted. Md Nuruzzaman Pranto (first and corresponding author).</li>
-        <li><b>Interpretable Multimodal Transformer for Scalable Behavioral Assessment in Pediatric Autism Therapy.</b> Under review. Md Nuruzzaman Pranto (first author).</li>
+          ISITDI 2026, accepted August 18, 2026; presentation November 9&ndash;10, 2026. Md Nuruzzaman Pranto (first author).
+          Its single-split results are superseded by the stricter leakage-controlled evaluation in the IEEE Access study.</li>
+        <li><b>Interpretable Multimodal Transformer for Scalable Behavioral Assessment in Pediatric Autism Therapy.</b>
+          <i>Results in Control and Optimization</i>, under review (submitted June 21, 2026). Md Nuruzzaman Pranto (first author).</li>
       </ul>
       <p class="muted small">Full publication list: <a href="https://scholar.google.com/citations?user=pyZLqF4AAAAJ" target="_blank" rel="noopener">Google Scholar</a>.
       Peer review record: <a href="https://www.webofscience.com/wos/author/record/PTE-7273-2026" target="_blank" rel="noopener">Web of Science PTE-7273-2026</a>.</p>
@@ -307,17 +310,17 @@ function renderPubs() {
 }
 
 function renderRoadmap() {
-  const p = (t, body) => `<div class="proj"><div class="row"><h2 style="margin:0;">${t}</h2><span class="tag plan">Planned</span></div>${body}</div>`;
+  const p = (t, body) => `<div class="proj"><span class="tag plan">Planned</span><h2 style="margin:8px 0 0;">${t}</h2>${body}</div>`;
   app.innerHTML = shell(`
     <div class="card">
       <h1>Research roadmap</h1>
-      <p class="muted">Planned work. Nothing on this page is finished or deployed.</p>
-      ${p("A. Leakage-controlled audit of autism-screening machine learning",
-        `<p>Re-evaluate published screening models across multiple public datasets with the checks on the Methods page, including subgroup analysis by age and sex, and publish the results and code.</p>`)}
-      ${p("B. Explainable behavioral-assessment and progress-monitoring models",
-        `<p>Develop interpretable models that summarise structured behavioral session data for clinicians, evaluated with the same leakage controls. Any work with real children's data would be done only with research partners, ethics (IRB) approval and consent.</p>`)}
-      ${p("C. Open evaluation toolkit",
-        `<p>Release a reusable, documented toolkit so other researchers and developers can run the same leakage and subgroup checks on their own screening models.</p>`)}
+      <p class="muted">Planned work, 2027&ndash;2028. Nothing on this page is finished or deployed.</p>
+      ${p("A. Leakage-controlled audit and open evaluation toolkit (January&ndash;December 2027)",
+        `<p>Test whether the high accuracies reported for machine-learning autism screening hold up under fair evaluation: label-definition audits, duplicate removal before splitting, feature-group ablation, stratified and grouped cross-validation, held-out external datasets, calibration, and performance by age group, sex and data source. Publish the results and release a documented, open-source evaluation toolkit so other researchers and developers can run the same checks.</p>`)}
+      ${p("B. Explainable questionnaire-based screening support (July 2027 &ndash; June 2028)",
+        `<p>Validated questionnaires already have standard scoring. Study when interpretable machine learning adds anything to that scoring and when it does not, separating models that predict a questionnaire-computed label from models tested against clinically confirmed diagnoses, with question-level explanations, uncertainty and referral-threshold analysis.</p>`)}
+      ${p("C. Interpretable behavioral assessment in autism therapy (January&ndash;December 2028)",
+        `<p>Develop interpretable models that summarize children's behavioral progress in autism therapy in a way clinicians can examine and check, evaluated with the same leakage, subgroup and baseline comparisons. Any work with real clinical data would be done only through a collaborating institution, with ethics (IRB) approval, consent and de-identified data.</p>`)}
     </div>`);
   bindTabs();
 }
