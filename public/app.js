@@ -297,7 +297,7 @@ function renderPubs() {
         <li><b>Demographic Features Fail to Provide Clinically Viable Autism Screening: A Leakage-Controlled Multi-Dataset Re-evaluation of Machine Learning.</b>
           <i>IEEE Access</i>, accepted 2026. Md Nuruzzaman Pranto (first and corresponding author).</li>
         <li><b>Early Prediction of Autism Spectrum Disorder Using Demographic Features: A Leakage-Controlled Deep Learning Approach.</b>
-          ISITDI 2026, accepted August 18, 2026; presentation November 9&ndash;10, 2026. Md Nuruzzaman Pranto (first author).
+          ISITDI 2026, accepted August 18, 2026; presented November 9, 2026. Md Nuruzzaman Pranto (first and presenting author).
           Its single-split results are superseded by the stricter leakage-controlled evaluation in the IEEE Access study.</li>
         <li><b>Interpretable Multimodal Transformer for Scalable Behavioral Assessment in Pediatric Autism Therapy.</b>
           <i>Results in Control and Optimization</i>, under review (submitted June 21, 2026). Md Nuruzzaman Pranto (first author).</li>
